@@ -107,7 +107,6 @@ ${rank}:${data.acct}(${data.count})`
 		})
 	})
 }
-himarun()
 main()
 function getAcct(acct: { Acct: string }) {
 	return acct.Acct
