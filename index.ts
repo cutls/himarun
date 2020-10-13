@@ -4,6 +4,7 @@ import axios from 'axios'
 import * as mysql from 'mysql'
 import { CONFIG, HIMARUN_MAP } from './interfaces/common'
 import knex from 'knex'
+process.env.TZ = 'Asia/Tokyo' 
 
 dotenv.config()
 const config = (process.env as unknown) as CONFIG
