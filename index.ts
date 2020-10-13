@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv'
 import axios from 'axios'
 import * as mysql from 'mysql'
 import { CONFIG, HIMARUN_MAP } from './interfaces/common'
-import * as knex from 'knex'
+import knex from 'knex'
 
 dotenv.config()
 const config = (process.env as unknown) as CONFIG
@@ -123,10 +123,10 @@ function isTrue(target: string) {
 	if (target === '1' || target === 'true' || target === 'TRUE' || target === 'True' || target === 'On' || target === 'ON' || target === 'on') return true
 	return false
 }
-function genMysqlTimestamp(date) {
+function genMysqlTimestamp(date: Date) {
 	return `${date.getFullYear()}-${to2Str(date.getMonth() + 1)}-${to2Str(date.getDate())} ${to2Str(date.getHours())}:${to2Str(date.getMinutes())}:${to2Str(date.getSeconds())}`
 }
-function to2Str(str) {
-	if (parseInt(str) < 10) return '0' + str
+function to2Str(str: number) {
+	if (str < 10) return '0' + str
 	return str
 }

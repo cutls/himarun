@@ -9,6 +9,7 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "@types/knex": "^0.16.1",
     "@types/mysql": "^2.15.15",
     "@types/ws": "^7.2.6",
     "ts-node": "^9.0.0",
