@@ -58,6 +58,10 @@ function main() {
 		if (notification.account.acct == notification.account.username) return false
 		await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, { headers: { Authorization: `Bearer ${access_token}` } })
 	})
+
+	stream.on('close', () => {
+		main()
+	})
 }
 function himarun() {
 	const date = new Date()
