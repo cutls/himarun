@@ -64,13 +64,13 @@ function main() {
 		main()
 	})
 }
-function himarun() {
+async function himarun() {
 	const date = new Date()
 	const get = my(config.DB_TABLE)
 		.select('Acct')
 		.where('Date', `${date.getFullYear()}-${to2Str(date.getMonth() + 1)}-${to2Str(date.getDate())}`)
 		.toString()
-	pool.query(get, (error, results: { Acct: string }[]) => {
+	pool.query(get, async (error, results: { Acct: string }[]) => {
 		if (error) console.error(error)
 		const map: HIMARUN_MAP = {}
 		let ct = 1
@@ -107,9 +107,7 @@ ${rank}:${data.acct}(${data.count})`
 			i++
 		}
 		console.log(post)
-		client.postStatus(post).then((res: Response<Entity.Status>) => {
-			console.log(res.data)
-		})
+		await axios.post(`https://${BASE_URL}/api/v1/statuses`, {status: post}, { headers: { Authorization: `Bearer ${access_token}` } })
 	})
 }
 main()
