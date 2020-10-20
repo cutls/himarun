@@ -151,7 +151,7 @@ async function himarun() {
 			post =
 				post +
 				`
-${rank}:${data.acct}(${data.count} | ${Math.floor( 1 / 3 * 1000 ) / 10}%)`
+${rank}:${data.acct}(${data.count} | ${Math.floor( data.count / ct * 1000 ) / 10}%)`
 			i++
 		}
 		console.log(post)
