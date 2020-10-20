@@ -11,15 +11,19 @@ kirishima.cloud(アスタルテ)用に作ったけど別にそれ以外でも動
 
 https://kirishima.cloud/@AstarteBot
 
+リプライを送ると、リフォローとそのリプライをした人の1週間のアクティビティをDMで返信します。
+
 ## 使い方
 
-いるもの Node.js(10と12で確認), yarnとbotアカウント、アクセストークン(read/write必須、AUTOFOLLOWを使うときはfollowも)
+### いるもの
+
+Node.js(10と12で確認), yarnとbotアカウント、アクセストークン(read/write必須、AUTOFOLLOWを使うときはfollowも), MySQL(5.7で確認)
 
 * `.env`を設定
-* `yarn`
-* `yarn db:init`
-* `yarn build`
-* `yarn start`
+* `yarn` 依存関係を正します
+* `yarn db:init` MySQLのテーブルを作成します
+* `yarn build` `tsc`(TypeScriptのため)
+* `yarn start` スタート
 
 任意でforever等を使って永続化します
 
@@ -30,3 +34,5 @@ https://kirishima.cloud/@AstarteBot
 * `yarn`
 * `yarn build`
 * `yarn start`
+
+もしDBに何らかの変更がある場合は起動できなくなる(はず)なので指示に従ってください。

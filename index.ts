@@ -63,7 +63,10 @@ function main() {
 				console.error('error to follow', `https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`)
 			}
 		} else if (notification.type === 'mention') {
-			if (notification.account.acct != notification.account.username) return false
+			if (notification.account.acct != notification.account.username) {
+				if(notification.account.acct === 'Cutls@cutls.com') himarun()
+				return false
+			}
 			try {
 				await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, {}, { headers: { Authorization: `Bearer ${access_token}` } })
 			} catch {}
