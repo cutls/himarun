@@ -116,11 +116,9 @@ function getAcct(acct: { Acct: string }) {
 }
 const watcher = function () {
 	const date = new Date()
-	if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
+	if (date.getHours() === 11 && date.getMinutes() === 52 && date.getSeconds() === 0) {
 		console.log('0:00:00')
 		himarun()
-	} else {
-		console.log(date.getHours(), date.getMinutes(), date.getSeconds())
 	}
 }
 setInterval(watcher, 1000)
