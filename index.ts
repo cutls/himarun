@@ -63,22 +63,22 @@ function main() {
 				console.error('error to follow', `https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`)
 			}
 		} else if (notification.type === 'mention') {
-			if (notification.account.acct != notification.account.username) return false
+			if (notification.account.acct == notification.account.username) return false
 			try {
 				await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, {}, { headers: { Authorization: `Bearer ${access_token}` } })
 			} catch {}
 			const get = my(config.DB_TABLE)
 				.select('Date')
 				.orderBy('ID', 'desc')
-				.where('Acct', notification.account.acct)
-				.where('Date', getDate(0))
-				.orWhere('Date', getDate(-1))
-				.orWhere('Date', getDate(-2))
-				.orWhere('Date', getDate(-3))
-				.orWhere('Date', getDate(-4))
-				.orWhere('Date', getDate(-5))
-				.orWhere('Date', getDate(-6))
-				.limit(1000)
+				.where('Acct', notification.account.acct).where(function() {
+					this.orWhere('Date', getDate(0))
+					.orWhere('Date', getDate(-1))
+					.orWhere('Date', getDate(-2))
+					.orWhere('Date', getDate(-3))
+					.orWhere('Date', getDate(-4))
+					.orWhere('Date', getDate(-5))
+					.orWhere('Date', getDate(-6))
+				  }).limit(1000)
 				.toString()
 			pool.query(get, async (error, results: { Date: string }[]) => {
 				if (error) console.error(error)
@@ -96,7 +96,7 @@ function main() {
 						`
 ${getDate(i)}: ${map[getDate(i)] ? map[getDate(i)] : 0}`
 				}
-				console.log(notification.status?.id)
+				console.log(post)
 				try {
 					const rep = await axios.post(
 						`https://${BASE_URL}/api/v1/statuses`,
