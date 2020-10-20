@@ -4,7 +4,7 @@ import axios from 'axios'
 import * as mysql from 'mysql'
 import { CONFIG, HIMARUN_MAP } from './interfaces/common'
 import knex from 'knex'
-process.env.TZ = 'Asia/Tokyo' 
+process.env.TZ = 'Asia/Tokyo'
 
 dotenv.config()
 const config = (process.env as unknown) as CONFIG
@@ -53,14 +53,54 @@ function main() {
 
 	//Only USE_HTL true, auto follow on local account
 	stream.on('notification', async (notification: Entity.Notification) => {
-		if (!isTrue(config.AUTOFOLLOW)) return false
-		if (notification.type !== 'follow') return false
-		//equal means local account because remote account return with domain as acct, but not as username
-		if (notification.account.acct == notification.account.username) return false
-		try {
-			await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, { headers: { Authorization: `Bearer ${access_token}` } })
-		} catch {
-			console.error('error to follow', `https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`)
+		if (notification.type === 'follow') {
+			if (!isTrue(config.AUTOFOLLOW)) return false
+			//equal means local account because remote account return with domain as acct, but not as username
+			if (notification.account.acct != notification.account.username) return false
+			try {
+				await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, {}, { headers: { Authorization: `Bearer ${access_token}` } })
+			} catch {
+				console.error('error to follow', `https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`)
+			}
+		} else if (notification.type === 'mention') {
+			if (notification.account.acct != notification.account.username) return false
+			await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, {}, { headers: { Authorization: `Bearer ${access_token}` } })
+			const get = my(config.DB_TABLE)
+				.select('Date')
+				.orderBy('ID', 'desc')
+				.where('Acct', notification.account.acct)
+				.where('Date', getDate(0))
+				.orWhere('Date', getDate(-1))
+				.orWhere('Date', getDate(-2))
+				.orWhere('Date', getDate(-3))
+				.orWhere('Date', getDate(-4))
+				.orWhere('Date', getDate(-5))
+				.orWhere('Date', getDate(-6))
+				.limit(1000)
+				.toString()
+			pool.query(get, async (error, results: { Date: string }[]) => {
+				if (error) console.error(error)
+				const map: HIMARUN_MAP = {}
+				let ct = 0
+				for (const data of results) {
+					ct++
+					map[data.Date] ? (map[data.Date] = map[data.Date] + 1) : (map[data.Date] = 1)
+				}
+				let post = `@${notification.account.acct}
+`
+				for (let i = 0; i <= 6; i++) {
+					post =
+						post +
+						`
+${getDate(i)}: ${map[getDate(i)] ? map[getDate(i)] : 0}`
+				}
+				console.log(notification.status?.id)
+				const rep = await axios.post(
+					`https://${BASE_URL}/api/v1/statuses`,
+					{ status: post, spoiler_text: 'あなたのデータ', visibility: 'direct', in_reply_to_id: notification.status?.id },
+					{ headers: { Authorization: `Bearer ${access_token}` } }
+				)
+			})
 		}
 	})
 
@@ -111,7 +151,7 @@ ${rank}:${data.acct}(${data.count})`
 			i++
 		}
 		console.log(post)
-		await axios.post(`https://${BASE_URL}/api/v1/statuses`, {status: post, spoiler_text: "今日の暇ラン"}, { headers: { Authorization: `Bearer ${access_token}` } })
+		await axios.post(`https://${BASE_URL}/api/v1/statuses`, { status: post, spoiler_text: '今日の暇ラン' }, { headers: { Authorization: `Bearer ${access_token}` } })
 	})
 }
 main()
@@ -136,4 +176,9 @@ function genMysqlTimestamp(date: Date) {
 function to2Str(str: number) {
 	if (str < 10) return '0' + str
 	return str
+}
+function getDate(diffDate: number) {
+	const date = new Date()
+	date.setDate(date.getDate() - diffDate)
+	return `${date.getFullYear()}-${to2Str(date.getMonth() + 1)}-${to2Str(date.getDate())}`
 }
