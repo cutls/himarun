@@ -107,7 +107,7 @@ ${rank}:${data.acct}(${data.count})`
 			i++
 		}
 		console.log(post)
-		await axios.post(`https://${BASE_URL}/api/v1/statuses`, {status: post}, { headers: { Authorization: `Bearer ${access_token}` } })
+		await axios.post(`https://${BASE_URL}/api/v1/statuses`, {status: post, spoiler_text: "今日の暇ラン"}, { headers: { Authorization: `Bearer ${access_token}` } })
 	})
 }
 main()
@@ -116,7 +116,7 @@ function getAcct(acct: { Acct: string }) {
 }
 const watcher = function () {
 	const date = new Date()
-	if (date.getHours() === 11 && date.getMinutes() === 52 && date.getSeconds() === 0) {
+	if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
 		console.log('0:00:00')
 		himarun()
 	}
