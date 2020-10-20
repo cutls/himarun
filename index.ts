@@ -119,6 +119,8 @@ const watcher = function () {
 	if (date.getHours() === 0 && date.getMinutes() === 0 && date.getSeconds() === 0) {
 		console.log('0:00:00')
 		himarun()
+	} else {
+		console.log(date.getHours(), date.getMinutes(), date.getSeconds())
 	}
 }
 setInterval(watcher, 1000)
