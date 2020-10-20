@@ -64,7 +64,9 @@ function main() {
 			}
 		} else if (notification.type === 'mention') {
 			if (notification.account.acct != notification.account.username) return false
-			await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, {}, { headers: { Authorization: `Bearer ${access_token}` } })
+			try {
+				await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, {}, { headers: { Authorization: `Bearer ${access_token}` } })
+			} catch {}
 			const get = my(config.DB_TABLE)
 				.select('Date')
 				.orderBy('ID', 'desc')
@@ -95,11 +97,13 @@ function main() {
 ${getDate(i)}: ${map[getDate(i)] ? map[getDate(i)] : 0}`
 				}
 				console.log(notification.status?.id)
-				const rep = await axios.post(
-					`https://${BASE_URL}/api/v1/statuses`,
-					{ status: post, spoiler_text: 'あなたのデータ', visibility: 'direct', in_reply_to_id: notification.status?.id },
-					{ headers: { Authorization: `Bearer ${access_token}` } }
-				)
+				try {
+					const rep = await axios.post(
+						`https://${BASE_URL}/api/v1/statuses`,
+						{ status: post, spoiler_text: 'あなたのデータ', visibility: 'direct', in_reply_to_id: notification.status?.id },
+						{ headers: { Authorization: `Bearer ${access_token}` } }
+					)
+				} catch {}
 			})
 		}
 	})
@@ -151,7 +155,9 @@ ${rank}:${data.acct}(${data.count})`
 			i++
 		}
 		console.log(post)
-		await axios.post(`https://${BASE_URL}/api/v1/statuses`, { status: post, spoiler_text: '今日の暇ラン' }, { headers: { Authorization: `Bearer ${access_token}` } })
+		try {
+			await axios.post(`https://${BASE_URL}/api/v1/statuses`, { status: post, spoiler_text: '今日の暇ラン' }, { headers: { Authorization: `Bearer ${access_token}` } })
+		} catch {}
 	})
 }
 main()
