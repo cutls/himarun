@@ -57,7 +57,11 @@ function main() {
 		if (notification.type !== 'follow') return false
 		//equal means local account because remote account return with domain as acct, but not as username
 		if (notification.account.acct == notification.account.username) return false
-		await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, { headers: { Authorization: `Bearer ${access_token}` } })
+		try {
+			await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, { headers: { Authorization: `Bearer ${access_token}` } })
+		} catch {
+			console.error('error to follow', `https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`)
+		}
 	})
 
 	stream.on('close', () => {
