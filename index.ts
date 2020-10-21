@@ -65,7 +65,7 @@ function main() {
 			}
 		} else if (notification.type === 'mention') {
 			if (notification.account.acct != notification.account.username) {
-				if (notification.account.acct === 'Cutls@cutls.com') himarun()
+				//if (notification.account.acct === 'Cutls@cutls.com') himarun()
 				return false
 			}
 			try {
