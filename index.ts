@@ -119,7 +119,7 @@ async function himarun() {
 	const date = new Date()
 	const get = my(config.DB_TABLE)
 		.select('Acct')
-		.where('Date', `${date.getFullYear()}-${to2Str(date.getMonth() + 1)}-${to2Str(date.getDate())}`)
+		.where('Date', `${date.getFullYear()}-${to2Str(date.getMonth() + 1)}-${to2Str(date.getDate() - 1)}`)
 		.toString()
 	pool.query(get, async (error, results: { Acct: string }[]) => {
 		if (error) console.error(error)
