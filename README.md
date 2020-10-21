@@ -22,7 +22,7 @@ Node.js(10と12で確認), yarnとbotアカウント、アクセストークン(
 * `.env`を設定
 * `yarn` 依存関係を正します
 * `yarn db:init` MySQLのテーブルを作成します
-* `yarn build` `tsc`(TypeScriptのため)
+* `yarn build` tscします(TypeScriptのため)
 * `yarn start` スタート
 
 任意でforever等を使って永続化します
