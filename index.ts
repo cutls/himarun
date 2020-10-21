@@ -36,6 +36,7 @@ function main() {
 	stream.on('update', (status: Entity.Status) => {
 		const acct = status.account.acct
 		const url = status.url
+		if(status.visibility === 'direct') return false
 		const createdAt = new Date(status.created_at)
 		const statusCreatedAt = genMysqlTimestamp(createdAt)
 		const sql = my(config.DB_TABLE)
@@ -64,7 +65,7 @@ function main() {
 			}
 		} else if (notification.type === 'mention') {
 			if (notification.account.acct != notification.account.username) {
-				if(notification.account.acct === 'Cutls@cutls.com') himarun()
+				if (notification.account.acct === 'Cutls@cutls.com') himarun()
 				return false
 			}
 			try {
@@ -73,15 +74,17 @@ function main() {
 			const get = my(config.DB_TABLE)
 				.select('Date')
 				.orderBy('ID', 'desc')
-				.where('Acct', notification.account.acct).where(function() {
+				.where('Acct', notification.account.acct)
+				.where(function () {
 					this.orWhere('Date', getDate(0))
-					.orWhere('Date', getDate(-1))
-					.orWhere('Date', getDate(-2))
-					.orWhere('Date', getDate(-3))
-					.orWhere('Date', getDate(-4))
-					.orWhere('Date', getDate(-5))
-					.orWhere('Date', getDate(-6))
-				  }).limit(1000)
+						.orWhere('Date', getDate(1))
+						.orWhere('Date', getDate(2))
+						.orWhere('Date', getDate(3))
+						.orWhere('Date', getDate(4))
+						.orWhere('Date', getDate(5))
+						.orWhere('Date', getDate(6))
+				})
+				.limit(1000)
 				.toString()
 			pool.query(get, async (error, results: { Date: string }[]) => {
 				if (error) console.error(error)
@@ -93,13 +96,18 @@ function main() {
 				}
 				let post = `@${notification.account.acct}
 `
+				let dataset: number[] = []
+				let labels: string[] = []
 				for (let i = 0; i <= 6; i++) {
+					dataset.push(map[getDate(i)] ? map[getDate(i)] : 0)
+					labels.push(getDate(i))
 					post =
 						post +
 						`
 ${getDate(i)}: ${map[getDate(i)] ? map[getDate(i)] : 0}`
 				}
 				console.log(post)
+				if (config.ASTARTE) post = withAstarte(post, dataset, labels)
 				try {
 					const rep = await axios.post(
 						`https://${BASE_URL}/api/v1/statuses`,
@@ -146,7 +154,11 @@ async function himarun() {
 		let post = ''
 		let i = 0
 		let rank = 1
+		let dataset: number[] = []
+		let labels: string[] = []
 		for (const data of arr) {
+			if (i < 10) dataset.push(arr[i].count)
+			if (i < 10) labels.push(arr[i].acct)
 			const old = i != 0 ? arr[i - 1].count : ''
 			if (old != arr[i].count) {
 				rank = i + 1
@@ -154,9 +166,10 @@ async function himarun() {
 			post =
 				post +
 				`
-${rank}:${data.acct}(${data.count} | ${Math.floor( data.count / ct * 1000 ) / 10}%)`
+${rank}:${data.acct}(${data.count} | ${Math.floor((data.count / ct) * 1000) / 10}%)`
 			i++
 		}
+		if (config.ASTARTE) post = withAstarte(post, dataset, labels)
 		console.log(post)
 		try {
 			await axios.post(`https://${BASE_URL}/api/v1/statuses`, { status: post, spoiler_text: '今日の暇ラン' }, { headers: { Authorization: `Bearer ${access_token}` } })
@@ -190,4 +203,50 @@ function getDate(diffDate: number) {
 	const date = new Date()
 	date.setDate(date.getDate() - diffDate)
 	return `${date.getFullYear()}-${to2Str(date.getMonth() + 1)}-${to2Str(date.getDate())}`
+}
+function withAstarte(post: string, dataset: number[], labels: string[]) {
+	const chart = {
+		type: 'bar',
+		data: {
+			datasets: [
+				{
+					data: dataset,
+				},
+			],
+			labels: labels,
+		},
+		options: {
+			legend: false,
+			scales: {
+				yAxes: [
+					{
+						ticks: {
+							min: 0,
+							fontColor: '#fff',
+						},
+						gridLines: {
+							color: '#fff',
+							zeroLineColor: '#fff',
+						},
+					},
+				],
+				xAxes: [
+					{
+						ticks: {
+							fontColor: '#fff',
+						},
+						gridLines: {
+							color: '#fff',
+						},
+					},
+				],
+			},
+		},
+	}
+	const qChart = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify(chart))}`
+	post =
+		post.replace(/_/g, '_​') +
+		`
+![グラフ](${qChart})`
+	return post
 }

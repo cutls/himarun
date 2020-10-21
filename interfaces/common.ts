@@ -3,6 +3,7 @@ export interface CONFIG {
     DOMAIN: string
     USE_HTL: string
     AUTOFOLLOW: string
+    ASTARTE: string
     DB_TABLE: string
     DB_HOST: string
     DB_USER: string
