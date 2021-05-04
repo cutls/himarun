@@ -4,6 +4,7 @@ import axios from 'axios'
 import * as mysql from 'mysql'
 import { CONFIG, HIMARUN_MAP } from './interfaces/common'
 import knex from 'knex'
+import moment from 'moment'
 process.env.TZ = 'Asia/Tokyo'
 
 dotenv.config()
@@ -36,7 +37,7 @@ function main() {
 	stream.on('update', (status: Entity.Status) => {
 		const acct = status.account.acct
 		const url = status.url
-		if(status.visibility === 'direct') return false
+		if (status.visibility === 'direct') return false
 		const createdAt = new Date(status.created_at)
 		const statusCreatedAt = genMysqlTimestamp(createdAt)
 		const sql = my(config.DB_TABLE)
@@ -70,7 +71,7 @@ function main() {
 			}
 			try {
 				await axios.post(`https://${BASE_URL}/api/v1/accounts/${notification.account.id}/follow`, {}, { headers: { Authorization: `Bearer ${access_token}` } })
-			} catch {}
+			} catch { }
 			const get = my(config.DB_TABLE)
 				.select('Date')
 				.orderBy('ID', 'desc')
@@ -114,7 +115,7 @@ ${getDate(i)}: ${map[getDate(i)] ? map[getDate(i)] : 0}`
 						{ status: post, spoiler_text: 'あなたのデータ', visibility: 'direct', in_reply_to_id: notification.status?.id },
 						{ headers: { Authorization: `Bearer ${access_token}` } }
 					)
-				} catch {}
+				} catch { }
 			})
 		}
 	})
@@ -124,10 +125,9 @@ ${getDate(i)}: ${map[getDate(i)] ? map[getDate(i)] : 0}`
 	})
 }
 async function himarun() {
-	const date = new Date()
 	const get = my(config.DB_TABLE)
 		.select('Acct')
-		.where('Date', `${date.getFullYear()}-${to2Str(date.getMonth() + 1)}-${to2Str(date.getDate() - 1)}`)
+		.where('Date', moment().add(-1, 'day').format('YYYY-MM-DD'))
 		.toString()
 	pool.query(get, async (error, results: { Acct: string }[]) => {
 		if (error) console.error(error)
@@ -173,7 +173,7 @@ ${rank}:${data.acct}(${data.count} | ${Math.floor((data.count / ct) * 1000) / 10
 		console.log(post)
 		try {
 			await axios.post(`https://${BASE_URL}/api/v1/statuses`, { status: post, spoiler_text: '今日の暇ラン' }, { headers: { Authorization: `Bearer ${access_token}` } })
-		} catch {}
+		} catch { }
 	})
 }
 main()
